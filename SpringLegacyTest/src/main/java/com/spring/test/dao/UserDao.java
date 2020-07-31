@@ -11,23 +11,43 @@ public class UserDao {
 
   /* ConnectionMaker connectionMaker = null; */
   private DataSource dataSource;
+  JdbcContext jdbcContext = null;
 
   public UserDao(DataSource dataSource) {
     /* this.connectionMaker = connectionMaker; */
     this.dataSource = dataSource;
   }
 
-  public void add(User user) throws SQLException {
+  public void setJdbcContext(JdbcContext jdbcContext) {
+    this.jdbcContext = jdbcContext;
+  }
+
+  public void add(final User user) throws SQLException {
 
     /* Connection conn = connectionMaker.getConnection(); */
-    Connection conn = dataSource.getConnection();
-    PreparedStatement ps =
-        conn.prepareStatement("insert into users (id, password, name) values (?,?,?)");
-    ps.setString(1, user.getId());
-    ps.setString(2, user.getPassword());
-    ps.setString(3, user.getName());
-    ps.executeUpdate();
-    ps.close();
+    /*
+     * Connection conn = dataSource.getConnection(); PreparedStatement ps =
+     * conn.prepareStatement("insert into users (id, password, name) values (?,?,?)");
+     * ps.setString(1, user.getId()); ps.setString(2, user.getPassword()); ps.setString(3,
+     * user.getName()); ps.executeUpdate(); ps.close();
+     */
+
+    class AddStategy implements Strategy {
+      @Override
+      public PreparedStatement makePrepareStatement(Connection conn) throws SQLException {
+        PreparedStatement psmt =
+            conn.prepareStatement("insert into users (id, password, name) values (?,?,?)");
+        psmt.setString(1, user.getId());
+        psmt.setString(2, user.getPassword());
+        psmt.setString(3, user.getName());
+
+        return psmt;
+      }
+    }
+
+    Strategy strategy = new AddStategy();
+
+    jdbcContext.executeStatementStrategy(strategy);
   }
 
   public User getId(String id) throws SQLException {
@@ -51,10 +71,34 @@ public class UserDao {
 
   public void deleteAll() throws SQLException {
     /* Connection conn = connectionMaker.getConnection(); */
-    Connection conn = dataSource.getConnection();
-    PreparedStatement psmt = conn.prepareStatement("delete users");
-    psmt.executeQuery();
+    /*
+     * Connection conn = dataSource.getConnection(); PreparedStatement psmt =
+     * conn.prepareStatement("delete users"); psmt.executeQuery();
+     * 
+     * psmt.close();
+     */
 
-    psmt.close();
+    /*
+     * Strategy strategy = new Strategy() {
+     * 
+     * @Override public PreparedStatement makePrepareStatement(Connection conn) throws SQLException
+     * { PreparedStatement psmt = null; psmt = conn.prepareStatement("delete users"); return psmt; }
+     * };
+     * 
+     * jdbcContext.executeStatementStrategy(strategy);
+     */
+
+    execute("delete users");
+  }
+
+  private void execute(final String query) throws SQLException {
+    jdbcContext.executeStatementStrategy(new Strategy() {
+      @Override
+      public PreparedStatement makePrepareStatement(Connection conn) throws SQLException {
+        PreparedStatement psmt = null;
+        psmt = conn.prepareStatement(query);
+        return psmt;
+      }
+    });
   }
 }

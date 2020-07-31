@@ -8,7 +8,7 @@ import com.spring.test.dao.UserDao;
 import com.spring.test.domain.User;
 import com.spring.test.service.UserFactory;
 
-public class UserDaoTDD {
+public class UserDaoTest {
 
   @Test
   public void test() throws SQLException {
@@ -24,4 +24,5 @@ public class UserDaoTDD {
     User getUser = userDao.getId("1");
     assertEquals(getUser.getName(), "exi");
   }
+
 }

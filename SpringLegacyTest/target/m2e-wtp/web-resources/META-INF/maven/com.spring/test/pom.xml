@@ -116,7 +116,6 @@
 			<version>4.7</version>
 			<scope>test</scope>
 		</dependency>
-		
 		<!-- https://mvnrepository.com/artifact/com.oracle.jdbc/ojdbc7 -->
 <dependency>
     <groupId>com.oracle.jdbc</groupId>

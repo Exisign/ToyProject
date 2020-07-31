@@ -4,6 +4,7 @@ import javax.sql.DataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.springframework.stereotype.Service;
+import com.spring.test.dao.JdbcContext;
 import com.spring.test.dao.UserDao;
 
 @Service
@@ -11,12 +12,21 @@ public class UserFactory {
 
   @Bean
   public UserDao userDao() {
-    return new UserDao(dataSource());
+    UserDao userDao = new UserDao(dataSource());
+    userDao.setJdbcContext(jdbcContext());
+    return userDao;
   }
 
   /*
    * @Bean public ConnectionMaker connectionMaker() { return new DiquestConnection(); }
    */
+
+  @Bean
+  public JdbcContext jdbcContext() {
+    JdbcContext jdbcContext = new JdbcContext();
+    jdbcContext.setDataSource(dataSource());
+    return jdbcContext;
+  }
 
   @Bean
   public DataSource dataSource() {
