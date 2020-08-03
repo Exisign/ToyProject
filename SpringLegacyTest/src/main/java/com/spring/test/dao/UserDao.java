@@ -32,7 +32,7 @@ public class UserDao {
      * user.getName()); ps.executeUpdate(); ps.close();
      */
 
-    class AddStategy implements Strategy {
+    Strategy strategy = new Strategy() {
       @Override
       public PreparedStatement makePrepareStatement(Connection conn) throws SQLException {
         PreparedStatement psmt =
@@ -43,9 +43,7 @@ public class UserDao {
 
         return psmt;
       }
-    }
-
-    Strategy strategy = new AddStategy();
+    };
 
     jdbcContext.executeStatementStrategy(strategy);
   }
@@ -88,16 +86,10 @@ public class UserDao {
      * jdbcContext.executeStatementStrategy(strategy);
      */
 
-    execute("delete users");
-  }
-
-  private void execute(final String query) throws SQLException {
     jdbcContext.executeStatementStrategy(new Strategy() {
       @Override
       public PreparedStatement makePrepareStatement(Connection conn) throws SQLException {
-        PreparedStatement psmt = null;
-        psmt = conn.prepareStatement(query);
-        return psmt;
+        return conn.prepareStatement("delete users");
       }
     });
   }
